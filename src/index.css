@@ -1,0 +1,40 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+section > div {
+  margin: 0;
+  padding: 0;
+  font-size: 0;
+  background-image: cover;
+}
+.tile{
+  max-height: 4.5vh; /*I wish I didn't have to do this but it almost seems necessary*/
+}
+section{
+  max-height: 90vh;
+}
+
+
+#main{
+  display: flex;
+  flex:auto;
+  gap: 20px;
+}
