@@ -34,7 +34,24 @@ section{
 
 
 #main{
+  width:fit-content;
+  margin: auto;
+  height: 94.5vh;
   display: flex;
-  flex:auto;
-  gap: 20px;
+  flex: auto;
+  padding: 0.3vw;
+  /* gap: 20px; */
+}
+
+.lightGray{
+  background-color: rgb(158, 87, 0);
+}
+
+#side-pane{
+  padding: 20px;
+}
+
+#side-buttons{
+  display: flex;
+  flex-direction: column;
 }

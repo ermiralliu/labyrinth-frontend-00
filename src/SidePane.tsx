@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { SERVER_URL_LOGIN } from "./constants";
 
-export default function SidePane(props: { score: number, children: JSX.Element[] }): JSX.Element {
+export default function SidePane(props: { score: number, level:number, children: JSX.Element[] }): JSX.Element {
   const [user, setUser] = useState('guest');
   useEffect(() => {
     fetch(SERVER_URL_LOGIN, {
@@ -13,16 +13,20 @@ export default function SidePane(props: { score: number, children: JSX.Element[]
       }).catch(err => console.error(err));
   }, [])
 
-
   return (
-    <aside>
+    <aside id='side-pane'className='lightGray'>
       <h2>
-        {user}
+        User: {user}
       </h2>
       <h1>
-        {props.score}
+        Score: {props.score}
       </h1>
-      {props.children}
+      <h1>
+        Level: {props.level}
+      </h1>
+      <div id='side-buttons'>
+        {props.children}
+      </div>
     </aside>
   )
 }

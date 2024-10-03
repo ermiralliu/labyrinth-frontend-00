@@ -1,27 +1,50 @@
-import { useEffect, useMemo, useRef} from "react";
+import { useEffect, useMemo, useRef } from "react"; //We ended up not having a single state in here, tf
 import { TileBoardOptions, TileType } from "./LabyrinthLogic/Generator";
 import Tile from "./Tile";
 
-export default function Board(props:{ dialogOpened: boolean, board: Uint8Array, setBoard: (arr:Uint8Array)=> void,updatePoints:()=>void}): JSX.Element {
+function makePlayer(board: Uint8Array){
+  const index = board.findIndex(element=> element === TileType.PLAYER);
+  const x = index % TileBoardOptions.WIDTH;
+  const y = (index - x)/TileBoardOptions.WIDTH; 
+  console.log('Starting position: ' +x+', ' +y)
+  return{ x, y }
+}
+
+export default function Board( props:{ 
+  dialogOpened: boolean, 
+  board: Uint8Array, 
+  level: number,
+  firstMove: boolean,
+  //setFirstMove: (isItTrue: boolean)=> void
+  setBoard: (arr:Uint8Array) => void,
+  resetBoard: () => void,
+  updateLevel: () => void,
+  updatePoints:() => void
+}): JSX.Element {
+  
+
   const boardRef = useRef(props.board); //So we don't put board in the dependency array on useEffect;
-  const makePlayer = useMemo(()=> ()=>{  //initializiation of Player
-    const index = boardRef.current.findIndex(element=> element === TileType.PLAYER);
-    const x = index % TileBoardOptions.WIDTH;
-    const y = (index - x)/TileBoardOptions.WIDTH; 
-    return{
-      x,
-      y
-    }
-  },[]);
-  const player = useRef(makePlayer());
-  
-  const setBoardRef = useRef(props.setBoard);
+
   useEffect(()=>{ //everytime the board is changed
+    console.log('updated board reference')
     boardRef.current = props.board
-    player.current = makePlayer();
-  },[makePlayer, props.board]); //makePlayer will never change anyway
+  }, [props.board]); //makePlayer will never change anyway
+
+  const player = useRef(makePlayer(props.board));
+
+  useEffect(()=>{
+    console.log('initialized new player on new board')
+    if(props.firstMove)
+      player.current = makePlayer(props.board);
+  }, [props.firstMove, props.board])
   
-  const updatePointsRef = useRef(props.updatePoints); //we create this, so we don't have to put props.updatePoints in any dependency arrays
+  const updateGameRef = useRef((()=>{// in-place initialization
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {dialogOpened, board, level, ...rest} = props;
+    return rest;
+  })()); //we create this, so we don't have to put these in any dependency arrays
+  //const setFirstMoveRef = useRef(props.setFirstMove);
+
   const gameEvent = useMemo(() => {
     //we need to keep this function the same if we want to remove it later, cause React reinitializes it each time, so removeEventListener didn't recognize it
     return (event: { preventDefault: () => void; key: string; }) => {
@@ -45,20 +68,30 @@ export default function Board(props:{ dialogOpened: boolean, board: Uint8Array, 
           y -= 1;
           break;
       }
-
-      if (boardRef.current[x + y * TileBoardOptions.WIDTH] === TileType.WALL)
-        return;
-      if (boardRef.current[x + y * TileBoardOptions.WIDTH] === TileType.COIN)
-        updatePointsRef.current();
+      //setFirstMoveRef.current(false);
+      const nextPosition = boardRef.current[x + y * TileBoardOptions.WIDTH];
+      switch(nextPosition){
+        case TileType.WALL:
+          //setFirstMoveRef.current(true);
+          updateGameRef.current.resetBoard();
+          alert('Current Game Lost');
+          return;
+        case TileType.COIN:
+          updateGameRef.current.updatePoints();
+          break;
+        case TileType.FINISH:
+          //setFirstMoveRef.current(true);
+          updateGameRef.current.updateLevel();
+          return;
+      }
       nextBoard[player.current.x + player.current.y * TileBoardOptions.WIDTH] = TileType.ROAD;
       nextBoard[x + y * TileBoardOptions.WIDTH] = TileType.PLAYER;
 
-      boardRef.current = nextBoard;
       player.current = { x, y };
-
-      setBoardRef.current(nextBoard);
+      console.log('Current coordinates:'+x+', '+y);
+      updateGameRef.current.setBoard(nextBoard);
     }
-  }, [])  //This should technically never or rarely change, so it should hopefully not be a problem
+  }, []);
 
   useEffect(() => {
     //here we add a keyboard listener that uses setBoard to make stuff up

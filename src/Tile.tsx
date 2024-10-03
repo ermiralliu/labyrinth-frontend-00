@@ -5,25 +5,26 @@ export default function Tile(props:{type:number}){  //props.children contains th
     let altText = '';
     switch(props.type){
         case TileType.ROAD:
-            src = './Assets/Asphalt.jpg';
+            src = '/Assets/Asphalt.jpg';
             altText = 'Road';
             break;
         case TileType.WALL:
-            src = './Assets/Lava.png';
+            src = '/Assets/Lava.png';
             altText = 'Lava';
             break;
         case TileType.COIN:
-            src = './Assets/Coin.jpg';
+            src = '/Assets/Coin.jpg';
             altText = 'Coin';
             break;
         case TileType.PLAYER:
-            src = './Assets/Player.png';
+            src = '/Assets/Player.png';
             altText = 'Player';
             break;
         case TileType.FINISH:
-            src = './Assets/Flag.png';
+            src = '/Assets/Flag.png';
             altText = 'Finish';
             break;
     }
-    return <img className='tile' src={ new URL(src, import.meta.url).href } alt={altText} />
+    // new URL(src, import.meta.url).href
+    return <img className='tile' src={ src } alt={altText} />
 }

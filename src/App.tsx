@@ -1,7 +1,8 @@
 //import { useEffect, useState } from "react";
 import { useState } from "react";
 import Game from "./Game";
-import UserDialog from "./UserDialog";
+import UserForm from "./UserForm";
+import MyDialog from "./MyDialog";
 
 export const DialogType = Object.freeze({
   CLOSED: -1,
@@ -16,7 +17,12 @@ function App() {
   
   return (
     <>
-      { dialogOpened !== DialogType.CLOSED ? <UserDialog dialogType={dialogOpened} closeDialog={()=>setDialog(DialogType.CLOSED)}/> : <></> }
+      { 
+        dialogOpened !== DialogType.CLOSED ? 
+        <MyDialog closeDialog={()=>setDialog(DialogType.CLOSED)}>
+          <UserForm dialogType={dialogOpened} />
+        </MyDialog> : <></> 
+      }
       <Game dialogOpened={dialogOpened !== DialogType.CLOSED} openDialog={setDialog}/>
     </>
   )
