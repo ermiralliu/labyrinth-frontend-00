@@ -1,20 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef} from "react";
 import { TileBoardOptions, TileType } from "./LabyrinthLogic/Generator";
 import Tile from "./Tile";
 
-export default function Board(props:{ dialogOpened: boolean, startingBoard: Uint8Array, updatePoints:()=>void}): JSX.Element {
-  const [board, setBoard] = useState(props.startingBoard);
-  
-  const boardRef = useRef(props.startingBoard); //So we don't put board in the dependency array on useEffect;
-  const player = useRef( (()=>{  //initializiation of Player
-    const index = board.findIndex(element=> element === TileType.PLAYER);
-    const x = index % TileBoardOptions.WIDTH;
-    const y = (index - x)/TileBoardOptions.WIDTH; 
-    return{
-      x,
-      y
-    }
-  })());
+export default function Board(props:{ dialogOpened: boolean, board: Uint8Array, setBoard: (arr:Uint8Array)=> void,updatePoints:()=>void}): JSX.Element {
+  const boardRef = useRef(props.board); //So we don't put board in the dependency array on useEffect;
   const makePlayer = useMemo(()=> ()=>{  //initializiation of Player
     const index = boardRef.current.findIndex(element=> element === TileType.PLAYER);
     const x = index % TileBoardOptions.WIDTH;
@@ -24,11 +13,13 @@ export default function Board(props:{ dialogOpened: boolean, startingBoard: Uint
       y
     }
   },[]);
-  useEffect(()=>{
-    setBoard(props.startingBoard);
-    boardRef.current = props.startingBoard;
-    player.current = makePlayer();;
-  },[props.startingBoard, makePlayer]); //makePlayer will never change anyway
+  const player = useRef(makePlayer());
+  
+  const setBoardRef = useRef(props.setBoard);
+  useEffect(()=>{ //everytime the board is changed
+    boardRef.current = props.board
+    player.current = makePlayer();
+  },[makePlayer, props.board]); //makePlayer will never change anyway
   
   const updatePointsRef = useRef(props.updatePoints); //we create this, so we don't have to put props.updatePoints in any dependency arrays
   const gameEvent = useMemo(() => {
@@ -65,7 +56,7 @@ export default function Board(props:{ dialogOpened: boolean, startingBoard: Uint
       boardRef.current = nextBoard;
       player.current = { x, y };
 
-      setBoard(nextBoard);
+      setBoardRef.current(nextBoard);
     }
   }, [])  //This should technically never or rarely change, so it should hopefully not be a problem
 
@@ -87,7 +78,7 @@ export default function Board(props:{ dialogOpened: boolean, startingBoard: Uint
     for (let y = 0; y < TileBoardOptions.HEIGHT; ++y) {
       const row = [];
       for (let x = 0; x < TileBoardOptions.WIDTH; ++x) {
-        row.push(<Tile key={x} type={board[x + y * TileBoardOptions.WIDTH]} />);
+        row.push(<Tile key={x} type={props.board[x + y * TileBoardOptions.WIDTH]} />);
       }
       tileBoard.push(<div key={y}>{row}</div>);
     }
