@@ -1,4 +1,4 @@
-import { TileType } from "./LabyrinthLogic/Generator"
+import { TileType } from "../LabyrinthLogic/Generator"
 
 export default function Tile(props:{type:number}){  //props.children contains the type
     let src = '';

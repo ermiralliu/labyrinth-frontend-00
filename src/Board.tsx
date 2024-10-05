@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef } from "react"; //We ended up not having a single state in here, tf
-import { TileBoardOptions, TileType } from "./LabyrinthLogic/Generator";
-import Tile from "./Tile";
+import { makeLab, TileBoardOptions, TileType } from "./LabyrinthLogic/Generator";
+import Tile from "./SupportingComponents/Tile";
 
-function makePlayer(board: Uint8Array){
+function findPlayer(board: Uint8Array){
   const index = board.findIndex(element=> element === TileType.PLAYER);
   const x = index % TileBoardOptions.WIDTH;
   const y = (index - x)/TileBoardOptions.WIDTH; 
   console.log('Starting position: ' +x+', ' +y)
+  console.log('initialized new player on new board')
   return{ x, y }
 }
 
@@ -15,35 +16,36 @@ export default function Board( props:{
   board: Uint8Array, 
   level: number,
   firstMove: boolean,
-  //setFirstMove: (isItTrue: boolean)=> void
+  setFirstMove: (isItTrue: boolean)=> void
   setBoard: (arr:Uint8Array) => void,
   resetBoard: () => void,
   updateLevel: () => void,
   updatePoints:() => void
 }): JSX.Element {
   
-
-  const boardRef = useRef(props.board); //So we don't put board in the dependency array on useEffect;
+  const boardRef = useRef(props.board); //We need this, cause we only want to add one EventListener, and if we use the board itself, we'll need to remove and add the action listener each time
 
   useEffect(()=>{ //everytime the board is changed
     console.log('updated board reference')
     boardRef.current = props.board
   }, [props.board]); //makePlayer will never change anyway
 
-  const player = useRef(makePlayer(props.board));
+  const player = useRef({x:1, y:1}); //it will immediately be initialized to the correct value below anyway;
 
+  const {firstMove, board, setFirstMove }= props;
   useEffect(()=>{
-    console.log('initialized new player on new board')
-    if(props.firstMove)
-      player.current = makePlayer(props.board);
-  }, [props.firstMove, props.board])
+    if(firstMove){
+      console.log('finding Player');
+      player.current = findPlayer(board);
+      setFirstMove(false);
+    }
+  }, [firstMove, board, setFirstMove]);
   
   const updateGameRef = useRef((()=>{// in-place initialization
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {dialogOpened, board, level, ...rest} = props;
     return rest;
   })()); //we create this, so we don't have to put these in any dependency arrays
-  //const setFirstMoveRef = useRef(props.setFirstMove);
 
   const gameEvent = useMemo(() => {
     //we need to keep this function the same if we want to remove it later, cause React reinitializes it each time, so removeEventListener didn't recognize it
@@ -51,7 +53,7 @@ export default function Board( props:{
       if (!['a', 's', 'd', 'w'].includes(event.key))
         return;
       event.preventDefault();
-      console.log(event.key);
+      //console.log(event.key);
       const nextBoard = boardRef.current.slice(); //making the copy
       let { x, y } = player.current;
       switch (event.key) {
@@ -68,11 +70,9 @@ export default function Board( props:{
           y -= 1;
           break;
       }
-      //setFirstMoveRef.current(false);
       const nextPosition = boardRef.current[x + y * TileBoardOptions.WIDTH];
       switch(nextPosition){
         case TileType.WALL:
-          //setFirstMoveRef.current(true);
           updateGameRef.current.resetBoard();
           alert('Current Game Lost');
           return;
@@ -80,15 +80,16 @@ export default function Board( props:{
           updateGameRef.current.updatePoints();
           break;
         case TileType.FINISH:
-          //setFirstMoveRef.current(true);
           updateGameRef.current.updateLevel();
+          updateGameRef.current.setBoard(makeLab((x-1)/2,(y-1)/2));
+          player.current = { x, y }
           return;
       }
       nextBoard[player.current.x + player.current.y * TileBoardOptions.WIDTH] = TileType.ROAD;
       nextBoard[x + y * TileBoardOptions.WIDTH] = TileType.PLAYER;
 
       player.current = { x, y };
-      console.log('Current coordinates:'+x+', '+y);
+      //console.log('Current coordinates:'+x+', '+y);
       updateGameRef.current.setBoard(nextBoard);
     }
   }, []);

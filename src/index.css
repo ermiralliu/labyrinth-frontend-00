@@ -35,7 +35,7 @@ section{
 
 #main{
   width:fit-content;
-  margin: auto;
+  margin: 0 auto;
   height: 94.5vh;
   display: flex;
   flex: auto;
