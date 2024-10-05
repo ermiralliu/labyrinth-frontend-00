@@ -57,6 +57,7 @@ export default function Game(props: {
     setFirstMove(true);
     const next_board = generateBoard();
     setBoard(next_board);
+    setBoardName('default');
     setBoardId(null);
   },[]);
 
