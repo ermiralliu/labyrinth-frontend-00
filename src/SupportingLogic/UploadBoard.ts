@@ -1,3 +1,4 @@
+import { BoardInfo, BoardObj } from "./BoardClasses";
 import { SERVER_URL_BOARD } from "./constants";
 
 function convertBoardToString(board: Uint8Array) {
@@ -5,7 +6,8 @@ function convertBoardToString(board: Uint8Array) {
   board.forEach((el) => boardString += el.toString());   //I'll try to send the UintArray, and if that doesn't work, send the string
   return boardString;
 }
-export function uploadBoard(data: Uint8Array, points: number, level: number, boardName: string) {
+export function uploadBoard(gm: BoardObj, boardName: string) {
+  const {board : data, points, level} = gm;
   if(!confirm('Do you want to upload the current board?'))
     return;
   const dataObj = {
@@ -39,7 +41,9 @@ export async function send(url: string, dataObj: { [k: string]: FormDataEntryVal
   }
 }
 
-export function updateBoard(boardId:number, data: Uint8Array, points: number, level: number, boardName: string) {
+export function updateBoard(info: BoardInfo, gm: BoardObj) {
+  const {board:data, points, level} = gm;
+  const {boardId, boardName} = info;
   if(!confirm('Do you want to update the current board?'))
     return;
   const dataObj = {

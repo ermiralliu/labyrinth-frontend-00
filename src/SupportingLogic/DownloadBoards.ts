@@ -1,3 +1,4 @@
+import { BoardObj } from "./BoardClasses";
 import { SERVER_URL_BOARD } from "./constants";
 
 export type BoardType = { boardId: number, boardName: string, date: string };
@@ -20,7 +21,7 @@ export async function downloadBoardsList(setBoardList: (board: BoardType[]) => v
     .catch(err => console.log(err));
 }
 
-export function downloadBoard(boardId: number, setGame: (b: Uint8Array, level: number, points: number, boardName: string)=> void){
+export function downloadBoard(boardId: number, setGame: (board: BoardObj, boardName: string)=> void){
   fetch(SERVER_URL_BOARD + '/' + boardId, {
     credentials: 'include',		//needed to send and recieve cookies //we send it so it stops us to register if we're logged in
     //although I'll probably remove the register and login buttons if the user is already logged in
@@ -35,7 +36,8 @@ export function downloadBoard(boardId: number, setGame: (b: Uint8Array, level: n
     throw new Error('The response is not okay');
   }).then(res => {
     console.log(res);
-    setGame(convertStringToBoard(res.boardString), res.level, res.points, res.boardName)}
+    const downloaded_board = convertStringToBoard(res.boardString);
+    setGame(new BoardObj(res.level, res.points, downloaded_board), res.boardName)}
   )
     .catch(err => console.log(err));
 }

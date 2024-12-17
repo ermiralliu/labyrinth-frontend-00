@@ -1,11 +1,12 @@
+import { BoardObj } from "./SupportingLogic/BoardClasses"
+
 export default function SidePane(props: { 
   username:string, 
-  score: number, 
-  level: number, 
+  game: BoardObj
   children: JSX.Element[] ,
   boardName: string
 }): JSX.Element {
-
+  const {points, level} = props.game;
   return (
     <aside id='side-pane'className='lightGray'>
       <h2>
@@ -15,10 +16,10 @@ export default function SidePane(props: {
         Board Name: {props.boardName}
       </h2>
       <h1>
-        Score: {props.score}
+        Score: {points}
       </h1>
       <h1>
-        Level: {props.level}
+        Level: {level}
       </h1>
       <div id='side-buttons'>
         {props.children}

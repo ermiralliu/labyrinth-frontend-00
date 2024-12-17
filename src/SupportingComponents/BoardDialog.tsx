@@ -1,3 +1,4 @@
+import { BoardObj } from "../SupportingLogic/BoardClasses";
 import { BoardType, downloadBoard } from "../SupportingLogic/DownloadBoards";
 import MyDialog from "./MyDialog";
 
@@ -5,8 +6,7 @@ export default function BoardListDialog(props: {
   showDialog: boolean,
   closeDialog: () => void,
   boardList: BoardType[]|null
-  setGame: (b: Uint8Array, level: number, points: number, boardName: string)=> void
-  setBoardId: (id: number)=> void 
+  setGame: (gm: BoardObj, boardName: string, id: number)=> void
 }) {
   if(props.boardList === null)
     return <></>
@@ -32,7 +32,12 @@ export default function BoardListDialog(props: {
                     <td key={index}> {value} </td>
                   ))
                 }
-              <td> <button type='button' onClick={()=> {props.setBoardId(element.boardId); downloadBoard(element.boardId, props.setGame); props.closeDialog()}}> Download </button></td>
+              <td> <button type='button' onClick={()=> {
+                // props.setBoardId(element.boardId);
+                const setGame = (board: BoardObj, boardName: string) => props.setGame(board, boardName, element.boardId);
+                downloadBoard(element.boardId, setGame); 
+                props.closeDialog()
+              }}> Download </button></td>
               </tr>
             ))
           }
